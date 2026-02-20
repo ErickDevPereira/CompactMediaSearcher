@@ -1,8 +1,5 @@
 from .requester import Requester
 import os
-import dotenv
-
-dotenv.load_dotenv('.env')
 
 requester_sgt: Requester = Requester(
     song_api_key = os.getenv('SONG_KEY'),
