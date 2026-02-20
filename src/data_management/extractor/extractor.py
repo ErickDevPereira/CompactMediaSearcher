@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Callable
 from src.custom_error.err_broken_json import BrokenJsonStructureException
 from collections.abc import Iterator #Used to type the generator. Iterator[yeld type] is the type hint for simple generators.
+from .utils import Utils
 
 class Extractor:
 
@@ -59,3 +60,34 @@ class Extractor:
             raise BrokenJsonStructureException(Extractor.std_msg('omdbAPI') + f'{err}')
         else:
             return result
+        
+    @staticmethod
+    def extract_book_data(book_json: Dict[str, Any]) -> List[str]:
+
+        try:
+            books_data: List[Dict[str, Any]] = book_json['items']
+            books_seq: Utils.BooksSequence = Utils().BooksSequence(books_data)
+
+            extracted_data: List[str] = list()
+
+            for data in books_seq:
+                if data is not None:
+                    extracted_data.append(data)
+        except Exception as err:
+            raise BrokenJsonStructureException(Extractor.std_msg('googleAPI') + f'{err}')
+        else:
+            return extracted_data
+    
+    @staticmethod
+    def extract_game_data(game_json: List[Dict[str, Any]]) -> List[str]:
+
+        games_title: List[str] = list()
+        try:
+            games_seq: Utils.GamesSequence = Utils().GamesSequence(game_json)
+            for game in games_seq:
+                if game is not None:
+                    games_title.append(game)
+        except Exception as err:
+            raise BrokenJsonStructureException(Extractor.std_msg('TwitchAPI') + f'{err}')
+        else:
+            return games_title

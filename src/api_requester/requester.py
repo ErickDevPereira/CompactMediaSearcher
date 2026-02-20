@@ -87,7 +87,7 @@ class Requester:
             async with session.post(self.__BASE_URL_GAME2, headers = {
                 'Client-ID': self.__game_api_key['client_id'],
                 'Authorization': f'Bearer {self.__access_token}'
-            }, data = 'fields name,summary; search "{game_title}";') as resp:
+            }, data = f'fields id,name,summary; search "{game_title}";') as resp:
                 if resp.status == 200:
                     print('end')
                     return await resp.json()
