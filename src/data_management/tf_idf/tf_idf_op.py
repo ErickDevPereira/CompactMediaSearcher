@@ -1,5 +1,5 @@
 from typing import List
-from numpy import ndarray
+from numpy import ndarray, float64
 from math import sqrt
 
 class TfIDfOperator:
@@ -31,7 +31,7 @@ class TfIDfOperator:
         return norm_vec
 
     @staticmethod
-    def get_cos(tf_idf_matrix: ndarray, docs: List[str], query_vec: ndarray) -> List[float, str]:
+    def get_cos(tf_idf_matrix: ndarray, docs: List[str], query_vec: ndarray) -> List[List[float64 | str]]:
         '''
         This function will get the tf_idf_matrix at the space IRn and a list
         of available documents that were used inside the matrix in the same 
@@ -47,7 +47,7 @@ class TfIDfOperator:
         return >> list with list with cossine value of the angle between the query vector and the vector at each row aligned with its document string.
         '''
 
-        organized_cos: List[List[float, str]] = [
+        organized_cos: List[List[float64 | str]] = [
             [
                 TfIDfOperator.get_inner_product(
                 TfIDfOperator.vec_normalizer(query_vec),
