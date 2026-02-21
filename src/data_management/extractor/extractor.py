@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Callable
 from src.custom_error.err_broken_json import BrokenJsonStructureException
 from collections.abc import Iterator #Used to type the generator. Iterator[yeld type] is the type hint for simple generators.
-from .utils import Utils
+from .iterators import Iterators
 
 class Extractor:
 
@@ -26,7 +26,7 @@ class Extractor:
             tracks: List[Dict[str, str | List[Dict[str, str]]]] = song_json['results']['trackmatches']['track']
             gen_filtered_data: Iterator[str] = ('@'.join([info_media['artist'], info_media['name']]) for info_media in tracks)
             for data in gen_filtered_data:
-                    songs_data.append(data)
+                    songs_data.append(data.upper())
         except Exception as err:
             raise BrokenJsonStructureException(Extractor.std_msg('last.fm') + f'{err}')
         else:
@@ -59,20 +59,30 @@ class Extractor:
         except Exception as err:
             raise BrokenJsonStructureException(Extractor.std_msg('omdbAPI') + f'{err}')
         else:
-            return result
+            return result.upper()
         
     @staticmethod
     def extract_book_data(book_json: Dict[str, Any]) -> List[str]:
+        '''
+        This method is responsible for getting JSON from the google API and
+        returning a string with the title of the book concatenated together with the
+        author's name. For example: 'Dan Bull@The God Father' could be a result.
+        The text before @ is the author's name while the text after @
+        is the title. It uses an iterator to help the operation.
 
+        book_json >> JSON dictionary that came from google api.
+
+        return >> string 'author@title' extracted from the JSON.
+        '''
         try:
             books_data: List[Dict[str, Any]] = book_json['items']
-            books_seq: Utils.BooksSequence = Utils().BooksSequence(books_data)
+            books_seq: Iterators.BooksSequence = Iterators().BooksSequence(books_data)
 
             extracted_data: List[str] = list()
 
             for data in books_seq:
                 if data is not None:
-                    extracted_data.append(data)
+                    extracted_data.append(data.upper())
         except Exception as err:
             raise BrokenJsonStructureException(Extractor.std_msg('googleAPI') + f'{err}')
         else:
@@ -80,13 +90,21 @@ class Extractor:
     
     @staticmethod
     def extract_game_data(game_json: List[Dict[str, Any]]) -> List[str]:
+        '''
+        This method is responsible for getting a list from the Twitch API and
+        returning a list of strings with the title of the games.
+        It uses an iterator to help the operation.
 
+        game_json >> list that came from Twitch api.
+
+        return >> string extracted from the list.
+        '''
         games_title: List[str] = list()
         try:
-            games_seq: Utils.GamesSequence = Utils().GamesSequence(game_json)
+            games_seq: Iterators.GamesSequence = Iterators().GamesSequence(game_json)
             for game in games_seq:
                 if game is not None:
-                    games_title.append(game)
+                    games_title.append(game.upper())
         except Exception as err:
             raise BrokenJsonStructureException(Extractor.std_msg('TwitchAPI') + f'{err}')
         else:
