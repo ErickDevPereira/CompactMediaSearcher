@@ -1,4 +1,4 @@
-from mysql.connector import connect as cnx, CMySQLConnection, MySQLConnection
+from mysql.connector import connect as cnx, CMySQLConnection, MySQLConnection, MySQLCursor
 
 class Connecion:
 
@@ -39,3 +39,15 @@ class Connecion:
 
         def __exit__(self, exc_type, exc_value, exc_traceback):
             self.__cnx.close()
+
+    class CursorManager:
+
+        def __init__(self, cnx: CMySQLConnection | MySQLConnection):
+            self.__cnx: CMySQLConnection | MySQLConnection = cnx
+        
+        def __enter__(self) -> MySQLCursor:
+            self.__cursor: MySQLCursor = self.__cnx.cursor()
+            return self.__cursor
+        
+        def __exit__(self, exc_type, exc_value, exc_traceback):
+            self.__cursor.close()
