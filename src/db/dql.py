@@ -5,7 +5,7 @@ class QueryBuilder:
 
     @staticmethod
     def get_user_by_email(cursor: Any,
-                        email: str) -> Dict[str, int | str]:
+                        email: str) -> Dict[str, int | str] | None:
         cursor.execute("SELECT id, user_token FROM users WHERE email = %s", (email,))
         data: List[Tuple[int, str]] = cursor.fetchall()
         if len(data) == 0:
