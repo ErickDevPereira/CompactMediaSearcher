@@ -1,3 +1,3 @@
 from dotenv import load_dotenv
 
-load_dotenv('src/api/jwt/.env')
+load_dotenv('src/api/jwt/jwt.env')
