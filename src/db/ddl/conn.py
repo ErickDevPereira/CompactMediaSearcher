@@ -1,6 +1,7 @@
-from mysql.connector import connect as cnx, CMySQLConnection, MySQLConnection, MySQLCursor
+from mysql.connector import connect as cnx, CMySQLConnection, MySQLConnection
+from typing import Any
 
-class Connecion:
+class Connection:
 
     #Context Manager used to connect with MySQL server, not with a database.
     class WeakConnection:
@@ -45,8 +46,8 @@ class Connecion:
         def __init__(self, cnx: CMySQLConnection | MySQLConnection):
             self.__cnx: CMySQLConnection | MySQLConnection = cnx
         
-        def __enter__(self) -> MySQLCursor:
-            self.__cursor: MySQLCursor = self.__cnx.cursor()
+        def __enter__(self) -> Any:
+            self.__cursor: Any = self.__cnx.cursor()
             return self.__cursor
         
         def __exit__(self, exc_type, exc_value, exc_traceback):

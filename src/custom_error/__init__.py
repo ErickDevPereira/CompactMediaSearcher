@@ -1,2 +1,3 @@
 from .err_async_http import AsyncHttpRequestProblem
 from .err_broken_json import BrokenJsonStructureException
+from .err_credential import LackingCredentialError

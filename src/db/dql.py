@@ -1,10 +1,10 @@
-from mysql.connector import CMySQLConnection, MySQLConnection, MySQLCursor
-from typing import Dict, List, Tuple
+from mysql.connector import CMySQLConnection, MySQLConnection
+from typing import Dict, List, Tuple, Any
 
 class QueryBuilder:
 
     @staticmethod
-    def get_user_by_email(cursor: MySQLCursor,
+    def get_user_by_email(cursor: Any,
                         email: str) -> Dict[str, int | str]:
         cursor.execute("SELECT id, user_token FROM users WHERE email = %s", (email,))
         data: List[Tuple[int, str]] = cursor.fetchall()
@@ -16,7 +16,7 @@ class QueryBuilder:
                 } #Real id and token of the user with such email
     
     @staticmethod
-    def get_ranked_data(cursor: MySQLCursor,
+    def get_ranked_data(cursor: Any,
                         uid: int,
                         table_name: str) -> List[Dict[str, str | float]]:
         #Detail: all resource tables must have title columns and similarity_coef

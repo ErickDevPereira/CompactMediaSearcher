@@ -1,10 +1,26 @@
-from mysql.connector import CMySQLConnection, MySQLConnection, MySQLCursor
+from mysql.connector import CMySQLConnection, MySQLConnection
+from typing import Any
 from numpy import float64
 
 class DataBaseManager:
 
     @staticmethod
-    def load_books(cursor: MySQLCursor,
+    def load_users(cursor: Any,
+                   cnx: CMySQLConnection | MySQLConnection,
+                   token: str,
+                   fname: str,
+                   lname: str,
+                   email: str) -> None:
+        cursor.execute(
+                """
+                    INSERT INTO users (user_token, fname, lname, email)
+                    VALUES (%s, %s, %s, %s)
+                """, (token, fname, lname, email)
+                )
+        cnx.commit()
+
+    @staticmethod
+    def load_books(cursor: Any,
                    cnx: CMySQLConnection | MySQLConnection,
                    uid: int,
                    title: str,
@@ -19,7 +35,7 @@ class DataBaseManager:
         cnx.commit()
     
     @staticmethod
-    def load_songs(cursor: MySQLCursor,
+    def load_songs(cursor: Any,
                     cnx: CMySQLConnection | MySQLConnection,
                     uid: int,
                     track: str,
@@ -34,7 +50,7 @@ class DataBaseManager:
         cnx.commit()
     
     @staticmethod
-    def load_movies(cursor: MySQLCursor,
+    def load_movies(cursor: Any,
                     cnx: CMySQLConnection | MySQLConnection,
                     uid: int,
                     title: str,
@@ -49,7 +65,7 @@ class DataBaseManager:
         cnx.commit()
     
     @staticmethod
-    def load_games(cursor: MySQLCursor,
+    def load_games(cursor: Any,
                    cnx: CMySQLConnection | MySQLConnection,
                    uid: int,
                    title: str,
