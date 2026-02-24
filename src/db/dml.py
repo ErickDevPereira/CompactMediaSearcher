@@ -50,21 +50,6 @@ class DataBaseManager:
         cnx.commit()
     
     @staticmethod
-    def load_movies(cursor: Any,
-                    cnx: CMySQLConnection | MySQLConnection,
-                    uid: int,
-                    title: str,
-                    director: str,
-                    sim_coef: float | float64) -> None:
-        cursor.execute(
-            """
-                INSERT INTO movies (uid, title, director, similarity_coef)
-                VALUES (%s, %s, %s, %s)
-            """, (uid, title, director, sim_coef)
-            )
-        cnx.commit()
-    
-    @staticmethod
     def load_games(cursor: Any,
                    cnx: CMySQLConnection | MySQLConnection,
                    uid: int,
@@ -73,6 +58,6 @@ class DataBaseManager:
         cursor.execute(
             """
                 INSERT INTO games (uid, title, similarity_coef)
-                VALUES (%s, %s, %s, %s)
+                VALUES (%s, %s, %s)
             """, (uid, title, sim_coef))
         cnx.commit()

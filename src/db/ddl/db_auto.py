@@ -66,19 +66,6 @@ class DataBase:
             with CONN.CursorManager(scnx) as cursor:
                 cursor.execute(
                                 """
-                                CREATE TABLE IF NOT EXISTS movies (
-                                    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                    uid INT UNSIGNED NOT NULL,
-                                    title VARCHAR(200) NOT NULL,
-                                    director VARCHAR(100) NOT NULL,
-                                    similarity_coef DECIMAL(5, 4) NOT NULL,
-                                    FOREIGN KEY(uid) REFERENCES users(id)
-                                )
-                                """
-                               )
-            with CONN.CursorManager(scnx) as cursor:
-                cursor.execute(
-                                """
                                 CREATE TABLE IF NOT EXISTS games (
                                     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                                     uid INT UNSIGNED NOT NULL,
