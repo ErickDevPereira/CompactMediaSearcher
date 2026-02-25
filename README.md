@@ -123,4 +123,4 @@ After TF-IDF filtering:
 
 ## **Screenshot example**
 The endpoint GET /search?title=title=Texas Chainsaw Massacre&creator=Tope will return the following on the screenshot:
-![](https://raw.githubusercontent.com/ErickDevPereira/CompactMediaSearcher/refs/heads/main/src/imgs/api_schema.png)
+![](https://raw.githubusercontent.com/ErickDevPereira/CompactMediaSearcher/refs/heads/main/src/imgs/screenshot.png)
