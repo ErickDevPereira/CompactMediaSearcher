@@ -20,14 +20,12 @@ class Requester:
         song_name >> string with the track name.
         return >> returns a dicitonary with the data of that searched song.
         '''
-        print('start')
         self.__BASE_URL_SONG: str = f"http://ws.audioscrobbler.com/2.0/?method=track.search&format=json&api_key={self.__song_api_key}&"
         self.__URL: Callable[[str], str] = lambda track : self.__BASE_URL_SONG + f'track={track}'
 
         async with aiohttp.ClientSession() as session:
             async with session.get(self.__URL(song_name)) as resp:
                 if resp.status == 200:
-                    print('end')
                     return await resp.json()
                 raise AsyncHttpRequestProblem(self.__err_msg(resp.status, 'last.fm'))
     
@@ -38,13 +36,11 @@ class Requester:
         movie_title >> string with the title.
         returned value >> returns a dicitonary with the data of that searched movie.
         '''
-        print('start')
         self.__BASE_URL_MOVIE: str = f"http://www.omdbapi.com/?apikey={self.__movie_api_key}&t={movie_title}"
         async with aiohttp.ClientSession() as session:
             async with session.get(self.__BASE_URL_MOVIE) as resp:
                 if resp.status == 200:
                     data: Dict[str, str] = await resp.json()
-                    print('end')
                     if data['Response'] == 'False':
                         return None #Can't finde such movie
                     return data #Everithing went fine
@@ -57,12 +53,10 @@ class Requester:
         book_title >> string with the title.
         return >> returns a dicitonary with the data of that searched book.
         '''
-        print('start')
         self.__BASE_URL_BOOK: str = f'https://www.googleapis.com/books/v1/volumes?key={self.__book_api_key}&q={book_title}'
         async with aiohttp.ClientSession() as session:
             async with session.get(self.__BASE_URL_BOOK) as resp:
                 if resp.status == 200:
-                    print('end')
                     return await resp.json()
                 raise AsyncHttpRequestProblem(self.__err_msg(resp.status, 'googleapi'))
 
@@ -73,7 +67,6 @@ class Requester:
         game_title >> string with the title.
         returned value >> returns a list with games.
         """
-        print('start')
         self.__BASE_URL_GAME1: str = f'https://id.twitch.tv/oauth2/token?client_id={self.__game_api_key['client_id']}&client_secret={self.__game_api_key['client_secret']}&grant_type=client_credentials'
         async with aiohttp.ClientSession() as session:
             async with session.post(self.__BASE_URL_GAME1) as resp:
@@ -89,7 +82,6 @@ class Requester:
                 'Authorization': f'Bearer {self.__access_token}'
             }, data = f'fields id,name,summary; search "{game_title}";') as resp:
                 if resp.status == 200:
-                    print('end')
                     return await resp.json()
                 raise AsyncHttpRequestProblem(self.__err_msg(resp.status, 'twitchapi'))
 

@@ -16,6 +16,7 @@ from src.data_management.extractor import Extractor
 from asyncio import run
 from src.data_management.similarity import DocumentFilter
 from pprint import pprint
+import time
 
 class HTTP:
 
@@ -297,8 +298,8 @@ class HTTP:
             #Returning the final JSON
             return {
                 'movies': self.__info_movies,
-                'songs': self.__info_songs,
-                'games': self.__info_games,
-                'books': self.__info_books,
+                'songs': None if not bool(self.__info_songs) else self.__info_songs,
+                'games': None if not bool(self.__info_games) else self.__info_games,
+                'books': None if not bool(self.__info_books) else self.__info_books,
                 'exp_remaining_time': self.__rt
             }, 200
