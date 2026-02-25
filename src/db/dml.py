@@ -43,7 +43,7 @@ class DataBaseManager:
                     sim_coef: float | float64) -> None:
         cursor.execute(
             """
-                INSERT INTO songs (uid, track, artist, similarity_coef)
+                INSERT INTO songs (uid, title, author, similarity_coef)
                 VALUES (%s, %s, %s, %s)
             """, (uid, track, artist, sim_coef)
             )
@@ -60,4 +60,12 @@ class DataBaseManager:
                 INSERT INTO games (uid, title, similarity_coef)
                 VALUES (%s, %s, %s)
             """, (uid, title, sim_coef))
+        cnx.commit()
+    
+    @staticmethod
+    def rm_media(cursor: Any,
+                cnx: CMySQLConnection | MySQLConnection,
+                uid: int,
+                table_name: str) -> None:
+        cursor.execute(f"DELETE FROM {table_name} WHERE uid = {uid}")
         cnx.commit()

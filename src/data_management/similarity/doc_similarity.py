@@ -6,7 +6,7 @@ import numpy as np
 
 class DocumentFilter:
 
-    def __init__(self, query: str, docs: List[str], precision: float | np.float64 = 0.85):
+    def __init__(self, query: str, docs: List[str], precision: float | np.float64 = 0.7):
 
         if not isinstance(precision, (np.float64, float)):
             raise TypeError("Precision must be a flaoting point number")

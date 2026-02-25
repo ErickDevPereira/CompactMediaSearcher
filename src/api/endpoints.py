@@ -15,6 +15,7 @@ from src.api_requester import requester_sgt
 from src.data_management.extractor import Extractor
 from asyncio import run
 from src.data_management.similarity import DocumentFilter
+from pprint import pprint
 
 class HTTP:
 
@@ -119,7 +120,7 @@ class HTTP:
     
     class Searcher(Resource):
 
-        def get(self) -> Dict[str, Any]:
+        def get(self) -> Tuple[Dict[str, Any], int]:
             self.__uid, self.__rt = auth_jwt()
             self.__creator: str | None = request.args.get('creator', type = str)
             self.__title: str | None = request.args.get('title', type = str)
@@ -157,6 +158,7 @@ class HTTP:
                                             docs = self.__doc_songs).similar_docs
             self.__df_games: List[Dict[str, str | float ]] = DocumentFilter(self.__title,
                                             docs = self.__doc_games).similar_docs
+            #Inserting data on the database.
             CONN: Connection = Connection()
             for book in self.__df_books:
                 for at_book in self.__books:
@@ -196,8 +198,9 @@ class HTTP:
                                     uid=self.__uid,
                                     track=self.__track,
                                     artist=self.__artist,
-                                    sim_coef=book['cos']
+                                    sim_coef=song['cos']
                                 )
+            #Querying ranked data for each one of the three media tables.
             for game in self.__df_games:
                 with CONN.StrongConnection(
                     user = os.getenv('MYSQL_USER'),
@@ -212,9 +215,90 @@ class HTTP:
                                 title=game['doc'],
                                 sim_coef=game['cos']
                             )
+            with CONN.StrongConnection(
+                user = os.getenv('MYSQL_USER'),
+                password = os.getenv('MYSQL_PW'),
+                database = os.getenv('DATABASE_NAME')
+                ) as cnx:
+                with CONN.CursorManager(cnx) as cursor:
+                    self.__ranked_books: List[Dict[str, str | float]] = QueryBuilder.get_ranked_data(cursor, uid = self.__uid, table_name = os.getenv('BOOK_TABLE'))
+                    self.__ranked_songs: List[Dict[str, str | float]] = QueryBuilder.get_ranked_data(cursor, uid = self.__uid, table_name = os.getenv('SONG_TABLE'))
+                    self.__ranked_games: List[Dict[str, str | float]] = QueryBuilder.get_ranked_data(cursor, uid = self.__uid, table_name = os.getenv('GAME_TABLE'))
+            
+            #Removing data requested by the user from MySQL
+            for table in (os.getenv('SONG_TABLE'), os.getenv('GAME_TABLE'), os.getenv('BOOK_TABLE')):
+                with CONN.StrongConnection(
+                    user = os.getenv('MYSQL_USER'),
+                    password = os.getenv('MYSQL_PW'),
+                    database = os.getenv('DATABASE_NAME')
+                    ) as cnx:
+                    with CONN.CursorManager(cnx) as cursor:
+                        DataBaseManager.rm_media(cursor, cnx, uid = self.__uid, table_name=table)
+            
+            #Getting the data of the books that have been chosen by TF-IDF.
+            #Searching the ranked data inside the JSON given by the google api
+            self.__info_books: List[Dict[str, Any]] = list()
+            self.__items_books: List[Dict[str, Any]] = self.__dbooks['items']
+            for book in self.__ranked_books:
+                for external_book in self.__items_books:
+                    if external_book['volumeInfo']['title'].upper() == book['title'] and external_book['volumeInfo']['authors'][0].upper() == book['author']:
+                        self.__internal_book: Dict[str, Any] = {}
+                        for field in ('title', 'subtitle', 'authors', 'categories', 'description', 'pageCount', 'publisher', 'publishedDate'):
+                            try:
+                                self.__internal_book.update({field : external_book['volumeInfo'][field]})
+                            except KeyError:
+                                self.__internal_book.update({field : None})
+                        self.__info_books.append(self.__internal_book)
+            #Searching the ranked data inside the JSON given by the last.fm api
+            self.__info_songs: List[Dict[str, Any]] = list()
+            self.__items_songs: List[Dict[str, Any]] = self.__dsongs['results']['trackmatches']['track']
+            for song in self.__ranked_songs:
+                for external_song in self.__items_songs:
+                    if external_song['name'].upper() == song['title'] and external_song['artist'].upper() == song['author']:
+                        self.__internal_song: Dict[str, Any] = {}
+                        for field in ('name', 'artist', 'listeners', 'url'):
+                            try:
+                                self.__internal_song.update({field : external_song[field]})
+                            except KeyError:
+                                self.__internal_song.update({field : None})
+                        self.__info_songs.append(self.__internal_song)
+
+            #Searching the ranked data inside the JSON given by the OMDB api
+            if self.__df_movies is None:
+                self.__info_movies: None = None
+            else:
+                if bool(self.__df_movies):
+                    self.__adjust_emptiness: Callable[[str], None | str] = lambda data : data if data != 'N/A' else None
+                    self.__info_movies: Dict[str, str | None] = {
+                        'title': self.__adjust_emptiness(self.__dmovies['Title']),
+                        'actors': self.__adjust_emptiness(self.__dmovies['Actors']),
+                        'awards': self.__adjust_emptiness(self.__dmovies['Awards']),
+                        'release_date': self.__adjust_emptiness(self.__dmovies['Released']),
+                        'runtime': self.__adjust_emptiness(self.__dmovies['Runtime']),
+                        'description': self.__adjust_emptiness(self.__dmovies['Plot']),
+                        'metascore': self.__adjust_emptiness(int(self.__dmovies['Metascore'])),
+                        'genre': self.__adjust_emptiness(self.__dmovies['Genre'])
+                        }
+                else:
+                    self.__info_movies: None = None
+            #Searching the ranked data inside the JSON given by the twitch api
+            self.__info_games: List[Dict[str, str]] = list()
+            for game in self.__ranked_games:
+                self.__game_title: str = game['title']
+                for ext_game in self.__dgames:
+                    if ext_game['name'].upper() == self.__game_title:
+                        self.__info_games.append(
+                            {
+                                'name': ext_game['name'],
+                                'summary': ext_game['summary']
+                            }
+                            )
+                        break
+            #Returning the final JSON
             return {
-                'movies': self.__df_movies,
-                'songs': self.__df_songs,
-                'games': self.__df_games,
-                'books': self.__df_books
+                'movies': self.__info_movies,
+                'songs': self.__info_songs,
+                'games': self.__info_games,
+                'books': self.__info_books,
+                'exp_remaining_time': self.__rt
             }, 200

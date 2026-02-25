@@ -1,5 +1,6 @@
 from .conn import Connection
 from mysql.connector.errors import ProgrammingError
+import os
 
 class DataBase:
 
@@ -39,12 +40,12 @@ class DataBase:
             #This idea will be used inside the dql.py file.
             with CONN.CursorManager(scnx) as cursor:
                 cursor.execute(
-                                """
-                                CREATE TABLE IF NOT EXISTS books (
+                                f"""
+                                CREATE TABLE IF NOT EXISTS {os.getenv('BOOK_TABLE')} (
                                     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                                     uid INT UNSIGNED NOT NULL,
-                                    title VARCHAR(200) NOT NULL,
-                                    author VARCHAR(100) NOT NULL,
+                                    {os.getenv('TITLE')} VARCHAR(200) NOT NULL,
+                                    {os.getenv('AUTHOR')} VARCHAR(100) NOT NULL,
                                     similarity_coef DECIMAL(5, 4) NOT NULL,
                                     FOREIGN KEY(uid) REFERENCES users(id)
                                 )
@@ -52,12 +53,12 @@ class DataBase:
                                )
             with CONN.CursorManager(scnx) as cursor:
                 cursor.execute(
-                                """
-                                CREATE TABLE IF NOT EXISTS songs (
+                                f"""
+                                CREATE TABLE IF NOT EXISTS {os.getenv('SONG_TABLE')} (
                                     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                                     uid INT UNSIGNED NOT NULL,
-                                    title VARCHAR(200) NOT NULL,
-                                    artist VARCHAR(100) NOT NULL,
+                                    {os.getenv('TITLE')} VARCHAR(200) NOT NULL,
+                                    {os.getenv('AUTHOR')} VARCHAR(100) NOT NULL,
                                     similarity_coef DECIMAL(5, 4) NOT NULL,
                                     FOREIGN KEY(uid) REFERENCES users(id)
                                 )
@@ -65,18 +66,18 @@ class DataBase:
                                )
             with CONN.CursorManager(scnx) as cursor:
                 cursor.execute(
-                                """
-                                CREATE TABLE IF NOT EXISTS games (
+                                f"""
+                                CREATE TABLE IF NOT EXISTS {os.getenv('GAME_TABLE')} (
                                     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                                     uid INT UNSIGNED NOT NULL,
-                                    title VARCHAR(200) NOT NULL,
+                                    {os.getenv('TITLE')} VARCHAR(200) NOT NULL,
                                     similarity_coef DECIMAL(5, 4) NOT NULL,
                                     FOREIGN KEY(uid) REFERENCES users(id)
                                 )
                                 """
                                )
             #Creating the indexes
-            for media in ('books', 'songs', 'movies', 'games'):
+            for media in (os.getenv('BOOK_TABLE'), os.getenv('SONG_TABLE'), os.getenv('GAME_TABLE')):
                 with CONN.CursorManager(scnx) as cursor:
                     try:
                         cursor.execute(f'CREATE INDEX token_ind_{media} ON {media}(user_token)')

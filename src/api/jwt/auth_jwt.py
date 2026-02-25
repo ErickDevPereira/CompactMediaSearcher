@@ -7,7 +7,6 @@ from typing import Any, Dict, Tuple
 
 def auth_jwt() -> Tuple[int, str]:
     token: str | None = request.headers.get('X-Access-Token')
-    print(token)
     if token is None:
         abort(400, message = 'The token must be given to the \'X-Access-Token\' field inside the header')
 

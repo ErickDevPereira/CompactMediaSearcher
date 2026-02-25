@@ -1,5 +1,6 @@
 from mysql.connector import CMySQLConnection, MySQLConnection
 from typing import Dict, List, Tuple, Any
+import os
 
 class QueryBuilder:
 
@@ -18,23 +19,48 @@ class QueryBuilder:
     @staticmethod
     def get_ranked_data(cursor: Any,
                         uid: int,
-                        table_name: str) -> List[Dict[str, str | float]]:
+                        table_name: str,
+                        limit_val: int = 5) -> List[Dict[str, str | float]]:
         #Detail: all resource tables must have title columns and similarity_coef
-        cursor.execute("""
-                            SELECT
-                                title, similarity_coef
-                            FROM
-                                %s
-                            WHERE
-                                uid = %s
-                            ORDER BY
-                                similarity_coef DESC
-                        """)
+        if table_name == 'games':
+            sql = f"""
+                    SELECT
+                        {os.getenv('TITLE')}, similarity_coef
+                    FROM
+                        {table_name}
+                    WHERE
+                        uid = {uid}
+                    ORDER BY
+                        similarity_coef DESC
+                    LIMIT {limit_val}
+                """
+        else:
+            sql = f"""
+                    SELECT
+                        {os.getenv('TITLE')}, {os.getenv('AUTHOR')}, similarity_coef
+                    FROM
+                        {table_name}
+                    WHERE
+                        uid = {uid}
+                    ORDER BY
+                        similarity_coef DESC
+                    LIMIT {limit_val}
+                """
+        cursor.execute(sql)
         ranked_dataset: List[Tuple[str, float]] = cursor.fetchall()
-        ogn_rkd_ds: List[Dict[str, str | float]] = [
-                    {
-                    'title': ranked_dataset[pos][0],
-                    'coef': ranked_dataset[pos][1]
-                    } for pos in range(len(ranked_dataset))
-                ]
+        if table_name != "games":
+            ogn_rkd_ds: List[Dict[str, str | float]] = [
+                        {
+                        'title': ranked_dataset[pos][0],
+                        'author': ranked_dataset[pos][1],
+                        'coef': ranked_dataset[pos][2]
+                        } for pos in range(len(ranked_dataset))
+                    ]
+        else:
+            ogn_rkd_ds: List[Dict[str, str | float]] = [
+                        {
+                        'title': ranked_dataset[pos][0],
+                        'coef': ranked_dataset[pos][1]
+                        } for pos in range(len(ranked_dataset))
+                    ]
         return ogn_rkd_ds
