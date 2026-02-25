@@ -72,6 +72,8 @@ Each component acts as a well-defined unit within the search engine
 
 ![](https://raw.githubusercontent.com/ErickDevPereira/CompactMediaSearcher/refs/heads/main/src/imgs/api_schema.png)
 
+![](https://raw.githubusercontent.com/ErickDevPereira/CompactMediaSearcher/refs/heads/main/src/imgs/dbschema.png)
+
 Description: API endpoints
 
 ## **Asynchronous Orchestration**
