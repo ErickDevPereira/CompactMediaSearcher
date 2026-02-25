@@ -104,3 +104,23 @@ After TF-IDF filtering:
 * Flask: framework to build APIs  
 * MySQL: RDBMS used to store data  
 * NumPy: library that allows vectorization
+
+## **How to use the API**
+
+* Step 1: Create a .env file inside the root of the project.
+* Step 2: Get your keys and secret keys at last.fm, twitch, google books api and omdb api.
+* Step 3: Install and create a MySQL account on your local machine.
+* Step 4: Fill the variables BOOKS_KEY, CLIENT_ID_GAMES, SECRET_KEY_GAMES, MOVIES_KEY, SONG_KEY, MYSQL_USER, MYSQL_PW, DATABASE_NAME with your keys and MySQL credentials inside the .env file.
+* Step 5: Create a virtual environment on your machine
+* Step 6: Inside the virtual environment, do pip install -r requirements.txt to install the dependencies
+* Step 7: Run the main.py file
+
+## **How to consume**
+
+* Step 1: Do a post request to /register with the json {'email': ..., 'first_name': ..., 'last_name': ....} to register an account. Save the token on the response.
+* Step 2: Access the endpoint GET /login with the json {'token': ..., 'email': ...}. Here you should use your email and token. The response will give you a JWT token that lasts for 1 hour.
+* Step 3: Access the endpoint GET /search, at which you can give the parameters 'title' and 'creator' with the title and author name of your research. You must povide the json {'X-Access-Token': ...} with the JWT token as the value to the header of the request. The response will be what you asked for.
+
+## **Screenshot example**
+The endpoint GET /search?title=title=Texas Chainsaw Massacre&creator=Tope will return the following on the screenshot:
+![](https://raw.githubusercontent.com/ErickDevPereira/CompactMediaSearcher/refs/heads/main/src/imgs/api_schema.png)
